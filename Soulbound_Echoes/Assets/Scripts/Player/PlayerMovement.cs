@@ -7,12 +7,18 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("References")]
     [SerializeField] Rigidbody2D rb;
+    [SerializeField] Transform firePoint;
+
+    [Header("ScriptReferences")]
+    ObjectPooling pooler;
+
     float x;
     float y;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        pooler = FindObjectOfType<ObjectPooling>();
     }
 
     private void Update()
@@ -43,6 +49,9 @@ public class PlayerMovement : MonoBehaviour
 
     void Shoot()
     {
-        Debug.Log("Shooting");
+        if(pooler != null)
+        {
+            pooler.SpawnObjects("Bullet", firePoint.position, firePoint.rotation);
+        }
     }
 }
