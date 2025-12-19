@@ -1,130 +1,79 @@
-using NUnit.Framework.Constraints;
-using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Player Movement Settings")]
-    [SerializeField] private float speed = 5f;
+    [Header("PlayerMovement Settings")]
+    public float speed = 5f;            
+    public float jumpForce = 9f;   
+    float moveInputX;                    
 
     [Header("References")]
-    [SerializeField] Rigidbody2D rb;
-    [SerializeField] Transform firePoint;
-    PlayerController controller;
-    Vector2 movement;
+    private Rigidbody2D rb;            
 
-    [Header("ScriptReferences")]
-    ObjectPooling pooler;
+    [Header("Bool for the players")]
+    public bool isFacingRight = true;       
+    private bool isJumping = false;        
 
- 
-    [Header("Dashing")]
-    [SerializeField] private float dashSpeed = 20f;
-    [SerializeField] private float dashDuration = 0.2f;
-    [SerializeField] private float dashCooldown = 1f;
-    private bool isDashing = false;
-    private bool canDash = true;
-    private bool dashPressed = false;
-    [SerializeField] TrailRenderer trailRenderer;
+    [Header("PlayerHealthSettings")]
+    public int maxHealth = 100;            
+    public int currentHealth;            
 
-    float x;
-    float y;
-
-    void Awake()
+   
+    private void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
-        controller = new PlayerController();
-        pooler = FindObjectOfType<ObjectPooling>();
-
-        MovementCalling();
-        Dash();
+        rb = GetComponent<Rigidbody2D>();            
     }
 
-    void MovementCalling()
+
+    
+    private void Start()
     {
-        controller.Player.Move.performed += ctx => movement = ctx.ReadValue<Vector2>();
-        controller.Player.Move.canceled += ctx => movement = Vector2.zero;
+        currentHealth = maxHealth;                       
     }
 
-    void Dash()
+
+  
+    private void Update()
     {
-        controller.Player.Dash.performed += ctx => dashPressed = true;
+        moveInputX = Input.GetAxisRaw("Horizontal");       
+
+
+        //Jumping Logic 
+        if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
         {
-            Debug.Log("Dash pressed");
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);  
+            isJumping = true;                      
+        }
+
+        Flip();                    
+    }
+
+
+    
+    private void FixedUpdate()
+    {
+        rb.linearVelocity = new Vector2(moveInputX * speed, rb.linearVelocity.y);    
+    }
+
+
+    public void Flip()
+    {
+        if (isFacingRight && moveInputX < 0 || !isFacingRight && moveInputX > 0)
+        {
+            isFacingRight = !isFacingRight;
+            Vector3 localScale = transform.localScale;               
+            localScale.x *= -1;                                     
+            transform.localScale = localScale;                      
+        }
+    }
+
+   
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.CompareTag("Ground") && isJumping)      
+        {
+            isJumping = false;                                      
         }
     }
    
-
-    void OnEnable()
-    {
-        controller.Player.Enable();
-    }
-
-    void OnDisable()
-    {
-        controller.Player.Disable();
-    }
-
-    private void Update()
-    {
-      
-        if(Input.GetMouseButtonDown(0))
-        {
-            Attack();
-        }
-
-        if(Input.GetMouseButtonDown(1))
-        {
-            Shoot();
-        }
-
-       
-    }
-
-    void FixedUpdate()
-    {
-        if(isDashing)
-        {
-            return;
-        }
-
-        if(canDash == true && dashPressed == true)
-        {
-            dashPressed = false;
-            StartCoroutine(Dashing());
-            Debug.Log("Start Dashing");
-        }
-       
-        Vector2 move = rb.position + movement * speed * Time.fixedDeltaTime;
-        rb.MovePosition(move);
-    }
-
-
-    IEnumerator Dashing()
-    {
-        canDash = false;
-        isDashing = true;
-        rb.AddForce(movement * dashSpeed, ForceMode2D.Impulse);
-        trailRenderer.emitting = true;
-        yield return new WaitForSeconds(dashDuration);
-        rb.linearVelocity = Vector2.zero;
-        isDashing = false;
-        trailRenderer.emitting = false;
-        yield return new WaitForSeconds(dashCooldown);
-        canDash = true;
-    }
-
-
-    void Attack()
-    {
-        Debug.Log("Attacking");
-    }
-
-    void Shoot()
-    {
-        if(pooler != null)
-        {
-            pooler.SpawnObjects("Bullet", firePoint.position, firePoint.rotation);
-        }
-    }
 }
