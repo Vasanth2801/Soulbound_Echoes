@@ -7,9 +7,7 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float timer;
     [SerializeField] private float lifeTime = 4f;
 
-
     [SerializeField] Rigidbody2D rb;
-
 
     void Start()
     {
@@ -46,6 +44,7 @@ public class Bullet : MonoBehaviour
             gameObject.SetActive(false);
         }
 
-        gameObject.SetActive(false);
+
+            gameObject.SetActive(false);
     }
 }
