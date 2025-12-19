@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -5,58 +6,42 @@ public class PlayerMovement : MonoBehaviour
     [Header("PlayerMovement Settings")]
     public float speed = 5f;            
     public float jumpForce = 9f;   
-    float moveInputX;                    
+    float moveInputX;
+
+    [Header("Ground Check Settings")]
+    private bool isGrounded;
+    [SerializeField] Transform groundCheck;
+    [SerializeField] float checkRadius;
+    [SerializeField] LayerMask whatIsGround;
 
     [Header("References")]
-    private Rigidbody2D rb;            
+    private Rigidbody2D rb;
 
     [Header("Bool for the players")]
-    public bool isFacingRight = true;       
-    private bool isJumping = false;        
+    public bool isFacingRight = true;
+    bool doubleJump;
 
-    [Header("PlayerHealthSettings")]
-    public int maxHealth = 100;            
-    public int currentHealth;            
-
-   
-    private void Awake()
+    void Awake()
     {
         rb = GetComponent<Rigidbody2D>();            
     }
 
-
-    
-    private void Start()
+    void Update()
     {
-        currentHealth = maxHealth;                       
-    }
+        moveInputX = Input.GetAxisRaw("Horizontal");
 
+        Jump();
 
-  
-    private void Update()
-    {
-        moveInputX = Input.GetAxisRaw("Horizontal");       
-
-
-        //Jumping Logic 
-        if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
-        {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);  
-            isJumping = true;                      
-        }
-
+      
         Flip();                    
     }
 
-
-    
     private void FixedUpdate()
     {
         rb.linearVelocity = new Vector2(moveInputX * speed, rb.linearVelocity.y);    
     }
 
-
-    public void Flip()
+    void Flip()
     {
         if (isFacingRight && moveInputX < 0 || !isFacingRight && moveInputX > 0)
         {
@@ -67,13 +52,18 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-   
-    private void OnCollisionEnter2D(Collision2D other)
+    void Jump()
     {
-        if (other.gameObject.CompareTag("Ground") && isJumping)      
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
+        if (isGrounded == true && Input.GetButtonDown("Jump"))
         {
-            isJumping = false;                                      
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            doubleJump = true;
+        }
+        else if(doubleJump)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce * 0.9f);
+            doubleJump = false;
         }
     }
-   
 }
