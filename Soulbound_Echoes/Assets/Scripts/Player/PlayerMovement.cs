@@ -15,6 +15,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float checkRadius;
     [SerializeField] LayerMask whatIsGround;
 
+    [Header("AttackReferences")]
+    [SerializeField] Transform attackPoint;
+    [SerializeField] private float attackRange = 0.5f;
+    public LayerMask enemyLayer;
+    public int attackDamage = 10;
+
     [Header("References")]
     private Rigidbody2D rb;
     [SerializeField] private Animator animator;
@@ -26,7 +32,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();            
+        rb = GetComponent<Rigidbody2D>();     
+        animator = GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -45,6 +52,8 @@ public class PlayerMovement : MonoBehaviour
 
         HandleAnimations();
 
+       
+
         Jump();
 
         Flip();                    
@@ -53,12 +62,34 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         PlayerMove();
+        Attack();
     }
 
     void PlayerMove()
     {
         float currentSpeed = runPressed ? runSpeed : walkSpeed;
         rb.linearVelocity = new Vector2(moveInputX * currentSpeed, rb.linearVelocity.y);
+    }
+
+
+    void Attack()
+    {
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            animator.SetTrigger("Attack");
+            Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayer);
+
+            foreach (Collider2D hit in hitEnemies)
+            {
+                
+                var eh = hit.GetComponent<Health>();
+                if (eh != null)
+                {
+                    eh.TakeDamage(attackDamage);
+                    Debug.Log("Damage done to enemy ");
+                }
+            }
+        }
     }
 
     void Flip()
