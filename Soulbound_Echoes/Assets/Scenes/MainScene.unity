@@ -5869,6 +5869,7 @@ MonoBehaviour:
   walkSpeed: 4
   runSpeed: 8
   jumpForce: 13
+  isGrounded: 0
   groundCheck: {fileID: 1411249129}
   checkRadius: 0.3
   whatIsGround:
@@ -6298,7 +6299,7 @@ Transform:
   m_GameObject: {fileID: 379568082}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.63, y: -0.16, z: 0}
+  m_LocalPosition: {x: 0.37, y: -0.16, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

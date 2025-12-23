@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -10,7 +9,7 @@ public class PlayerMovement : MonoBehaviour
     float moveInputX;
 
     [Header("Ground Check Settings")]
-    private bool isGrounded;
+    public bool isGrounded;
     [SerializeField] Transform groundCheck;
     [SerializeField] float checkRadius;
     [SerializeField] LayerMask whatIsGround;
@@ -20,14 +19,14 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float attackRange = 0.5f;
     public LayerMask enemyLayer;
     public int attackDamage = 10;
-
+    
     [Header("References")]
     private Rigidbody2D rb;
-    [SerializeField] private Animator animator;
+    public Animator animator;
 
     [Header("Bool for the players")]
-    [SerializeField] bool isFacingRight = true;
-    [SerializeField] bool doubleJump;
+    public bool isFacingRight = true;
+    public bool doubleJump;
     bool runPressed;
 
     void Awake()
@@ -52,8 +51,6 @@ public class PlayerMovement : MonoBehaviour
 
         HandleAnimations();
 
-       
-
         Jump();
 
         Flip();                    
@@ -62,7 +59,7 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         PlayerMove();
-        Attack();
+       Attack();
     }
 
     void PlayerMove()
@@ -71,7 +68,7 @@ public class PlayerMovement : MonoBehaviour
         rb.linearVelocity = new Vector2(moveInputX * currentSpeed, rb.linearVelocity.y);
     }
 
-
+    
     void Attack()
     {
         if (Input.GetKeyDown(KeyCode.K))
@@ -91,6 +88,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
+    
 
     void Flip()
     {
