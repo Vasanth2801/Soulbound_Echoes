@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -19,10 +20,20 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float attackRange = 0.5f;
     public LayerMask enemyLayer;
     public int attackDamage = 10;
-    
+
+    [Header("Slide Settings")]
+    [SerializeField] private float slideDuration = 0.6f;
+    [SerializeField] private bool isSliding = false;
+    private float slideTimer;
+    public float slideHeight;
+    public Vector2 slideOffSet;
+    public float normalHeight;
+    public Vector2 normalOffSet;
+
     [Header("References")]
     private Rigidbody2D rb;
     public Animator animator;
+    public CapsuleCollider2D capsuleCollider;
 
     [Header("Bool for the players")]
     public bool isFacingRight = true;
@@ -51,6 +62,8 @@ public class PlayerMovement : MonoBehaviour
 
         HandleAnimations();
 
+        HandleSlide();
+
         Jump();
 
         Flip();                    
@@ -58,7 +71,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        PlayerMove();
+        if(!isSliding)
+        {
+            PlayerMove();
+        }
+       
        Attack();
     }
 
@@ -69,6 +86,55 @@ public class PlayerMovement : MonoBehaviour
     }
 
     
+    void HandleSlide()
+    {
+        if(isSliding)
+        {
+            slideTimer -= Time.deltaTime;
+
+            if(slideTimer <= 0f)
+            {
+                isSliding = false;
+                SetColliderNormal();
+            }
+        }
+
+        if(isGrounded && runPressed && Input.GetKeyDown(KeyCode.L) && !isSliding)
+        {
+            isSliding = true;
+            slideTimer = slideDuration;
+            float slideSpeed = isFacingRight ? runSpeed * 1.5f : -runSpeed * 1.5f;
+            rb.linearVelocity = new Vector2(slideSpeed, rb.linearVelocity.y);
+            SetColliderSlide();
+        }
+
+        if(isSliding)
+        {
+            animator.SetBool("isSliding", true);
+        }
+        else
+        {
+            animator.SetBool("isSliding", false);
+        }
+    }
+
+    void SetColliderSlide()
+    {
+        if(isFacingRight)
+        {
+            capsuleCollider.offset = new Vector2(normalOffSet.x + slideOffSet.x, normalOffSet.y - slideOffSet.y);
+        }
+        else
+        {
+            capsuleCollider.offset = new Vector2(normalOffSet.x - slideOffSet.x, normalOffSet.y - slideOffSet.y);
+        }
+    }
+
+    void SetColliderNormal()
+    {
+        capsuleCollider.offset = normalOffSet;
+    }
+
     void Attack()
     {
         if (Input.GetKeyDown(KeyCode.K))
@@ -105,14 +171,15 @@ public class PlayerMovement : MonoBehaviour
     {
         animator.SetBool("isJumping", rb.linearVelocity.y >0.1f);
         animator.SetBool("isGrounded", isGrounded);
+        animator.SetBool("isSliding", isSliding);
 
         animator.SetBool("yVelocity", rb.linearVelocity.y < -0.1f);
 
         bool isMoving = Mathf.Abs(moveInputX) > 0.1f && isGrounded;
 
-        animator.SetBool("isIdle",!isMoving && isGrounded);
-        animator.SetBool("isWalking", isMoving && !runPressed);
-        animator.SetBool("isRunning", isMoving && runPressed);
+        animator.SetBool("isIdle",!isMoving && isGrounded && !isSliding);
+        animator.SetBool("isWalking", isMoving && !runPressed && !isSliding);
+        animator.SetBool("isRunning", isMoving && runPressed && !isSliding);
     }
 
     void Jump()
