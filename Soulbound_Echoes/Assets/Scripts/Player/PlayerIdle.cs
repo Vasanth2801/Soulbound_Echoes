@@ -17,7 +17,11 @@ public class PlayerIdle : PlayerState
     {
         base.Update();
 
-        if (JumpPressed)
+        if(AttackPressed && combat.canAttack)
+        {
+            player.ChangeState(player.attackState);
+        }
+        else if (JumpPressed)
         {
             JumpPressed = false;
             player.ChangeState(player.jumpState);

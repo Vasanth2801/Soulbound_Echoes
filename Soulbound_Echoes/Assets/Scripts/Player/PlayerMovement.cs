@@ -16,12 +16,14 @@ public class PlayerMovement : MonoBehaviour
 
     public PlayerSlide slideState;
 
+    public PlayerAttack attackState;
 
     [Header("References")]  
     public Rigidbody2D rb;
     [SerializeField] PlayerInput playerInput;
     public Animator animator;
     [SerializeField] private CapsuleCollider2D capsuleCollider;
+    public Combat combat;
 
     [Header("Movement Settings")]
     public  float walkSpeed = 5f;
@@ -33,6 +35,7 @@ public class PlayerMovement : MonoBehaviour
     public bool jumpPressed;
     public bool jumpReleased;
     public bool runPressed;
+    public bool attackPressed;
 
     [Header("Jump Settings")]
     public float jumpForce = 10f;
@@ -72,6 +75,7 @@ public class PlayerMovement : MonoBehaviour
         moveState = new PlayerMove(this);
         crouchState = new PlayerCrouch(this);
         slideState = new PlayerSlide(this);
+        attackState = new PlayerAttack(this);
     }
 
     private void Start()
@@ -109,6 +113,13 @@ public class PlayerMovement : MonoBehaviour
         currentState.Enter();
     }
 
+    public void AttackAnimationFinished()
+    {
+        currentState.AttackAnimationFinished();
+    }
+
+
+
     public void OnMove(InputValue value)
     {
         moveInput = value.Get<Vector2>();
@@ -119,6 +130,10 @@ public class PlayerMovement : MonoBehaviour
         runPressed = value.isPressed;
     }
 
+    public void OnAttack(InputValue value)
+    {
+        attackPressed = value.isPressed;
+    }
 
     public void OnJump(InputValue value)
     {
@@ -190,41 +205,4 @@ public class PlayerMovement : MonoBehaviour
         }
         transform.localScale = new Vector3(facingDirection, 1, 1);
     }
-    /*
- 
-
-    [Header("AttackReferences")]
-    [SerializeField] Transform attackPoint;
-    [SerializeField] private float attackRange = 0.5f;
-    public LayerMask enemyLayer;
-    public int attackDamage = 10;
-  
-
-    private void FixedUpdate()
-    {
-       Attack();
-    }
-
-
-
-    void Attack()
-    {
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            animator.SetTrigger("Attack");
-            Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayer);
-
-            foreach (Collider2D hit in hitEnemies)
-            {
-                
-                var eh = hit.GetComponent<Health>();
-                if (eh != null)
-                {
-                    eh.TakeDamage(attackDamage);
-                    Debug.Log("Damage done to enemy ");
-                }
-            }
-        }
-    }
-    */
 }

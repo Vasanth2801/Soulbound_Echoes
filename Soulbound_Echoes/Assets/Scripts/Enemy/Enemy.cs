@@ -20,7 +20,7 @@ public class Enemy : MonoBehaviour
     void HandleDamaged()
     {
         Debug.Log("Enemy Damaged");
-        animator.SetTrigger("Damaged");
+        animator.SetTrigger("isDamage");
     }
 
     void HandleDeath()

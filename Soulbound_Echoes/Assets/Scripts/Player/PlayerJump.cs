@@ -34,16 +34,14 @@ public class PlayerJump : PlayerState
 
         player.ApplyVariableJump();
 
-        if(JumpReleased && player.rb.linearVelocity.y > 0)
+        if(JumpReleased && player.rb.linearVelocity.y > 0.1f)
         {
             player.rb.linearVelocity = new Vector2(player.rb.linearVelocity.x, player.rb.linearVelocity.y * player.jumpMultiplier);
             JumpReleased = false;
         }
-
         float speed = RunPressed ? player.runSpeed : player.walkSpeed;
         player.rb.linearVelocity = new Vector2(speed * player.facingDirection, player.rb.linearVelocity.y);
     }
-
 
     public override void Exit()
     {

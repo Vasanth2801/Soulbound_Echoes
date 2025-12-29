@@ -13,7 +13,11 @@ public class PlayerMove : PlayerState
     {
         base.Update();
 
-        if (JumpPressed)
+        if (AttackPressed && combat.canAttack)
+        {
+            player.ChangeState(player.attackState);
+        }
+        else if (JumpPressed)
         {
             player.ChangeState(player.jumpState);
         }
